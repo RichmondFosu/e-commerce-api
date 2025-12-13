@@ -120,3 +120,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+
+# SessionAuthentication allows login via DRF browsable API or Django login
+# IsAuthenticatedOrReadOnly ensures only authenticated users can modify resources
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',  # built-in session auth
+        # 'rest_framework_simplejwt.authentication.JWTAuthentication', # optional later
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',  # read-only for unauthenticated
+    ]
+}
