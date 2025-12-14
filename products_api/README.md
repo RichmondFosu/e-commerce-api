@@ -62,3 +62,10 @@
 - API routes registered using DefaultRouter
 - Concept focus: HTTP methods ↔ CRUD mapping
 
+## Category CRUD Views
+
+- Implemented CategoryViewSet using DRF ModelViewSet
+- Full CRUD operations for categories
+- Write operations restricted to authenticated users
+- Routes registered using DRF DefaultRouter
+- Categories now accessible via API
