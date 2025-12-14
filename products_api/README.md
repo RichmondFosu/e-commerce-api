@@ -40,3 +40,15 @@
   - search_fields enables search by product_name, description, or slug
   
 - Migrations applied successfully
+
+## Serializers
+
+- CategorySerializer created to control API input/output for categories
+  - Fields: id, name, created_at
+  - id and created_at are read-only
+- ProductSerializer created for products
+  - Nested CategorySerializer used to represent category details
+  - Fields: id, product_name, slug, description, price, images, stock, is_available, category, created_date, updated_date
+  - read_only_fields: id, created_date, updated_date
+  - Optional field-level validation added for price (>0)
+- Concept focus: Serializer = API contract
