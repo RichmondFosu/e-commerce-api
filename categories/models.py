@@ -1,3 +1,15 @@
 from django.db import models
 
-# Create your models here.
+class Category(models.Model):
+    name = models.CharField(max_length=100, unique=True)  # Category name must be unique
+    created_at = models.DateTimeField(auto_now_add=True)   # Auto-set creation timestamp
+
+    def __str__(self):
+        return self.name  # For readable representation in admin and shell
+
+
+# Model: Category
+# Purpose: Store product categories (e.g., Electronics, Clothing)
+# 'name' is unique to avoid duplicate categories
+# 'created_at' auto-records when the category is created
+# This model can be extended with additional fields as needed
