@@ -2,6 +2,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .models import Product
 from .serializers import ProductSerializer
+from .permissions import IsOwnerOrReadOnly
 
 class ProductViewSet(ModelViewSet):
     """
@@ -12,7 +13,11 @@ class ProductViewSet(ModelViewSet):
     """
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+
+    # auto-assign the user who created the product
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
 
 
 ''''
@@ -26,3 +31,8 @@ Meaning:
 
 - Only logged-in users can create, update, delete
 '''
+
+
+
+
+
