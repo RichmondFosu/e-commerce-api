@@ -26,3 +26,17 @@
 - Model registered in Django admin with search and list display
 - Migrations applied successfully
 - Purpose: Categories are independent entities for better product organization
+
+## Product Model
+
+- Product model created with fields:
+  - product_name, slug, description, price, images, stock, is_available, category, created_date, updated_date
+
+- Model linked to Category via ForeignKey
+
+- Product registered in admin using ProductAdmin:
+  - list_display shows key product fields
+  - list_filter allows filtering by category, availability, and creation date
+  - search_fields enables search by product_name, description, or slug
+  
+- Migrations applied successfully
