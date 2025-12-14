@@ -52,3 +52,13 @@
   - read_only_fields: id, created_date, updated_date
   - Optional field-level validation added for price (>0)
 - Concept focus: Serializer = API contract
+
+
+## Product CRUD Views
+
+- Implemented ProductViewSet using DRF ModelViewSet
+- Full CRUD operations enabled
+- Write operations restricted to authenticated users
+- API routes registered using DefaultRouter
+- Concept focus: HTTP methods ↔ CRUD mapping
+
