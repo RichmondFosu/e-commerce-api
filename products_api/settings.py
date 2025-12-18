@@ -41,6 +41,8 @@ INSTALLED_APPS = [
 # Registering apps so Django knows about them
     'products',
     'categories',
+
+    'django_filters',  # for filtering support
 ]
 
 
@@ -132,7 +134,14 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',  # read-only for unauthenticated
+    ],
+
+    'DEFAULT_FILTER_BACKENDS': [
+            'django_filters.rest_framework.DjangoFilterBackend',
+            'rest_framework.filters.SearchFilter',
     ]
+
+
 }
 
 # media files config
