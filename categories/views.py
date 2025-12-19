@@ -18,11 +18,11 @@ class CategoryListAPIView(generics.ListAPIView):
 
 class CategoryViewSet(ModelViewSet):
     """
-    Handles all CRUD operations for product categories.
+     Handles all CRUD operations for product categories.
 
-    - Read operations: open to everyone
-    - Write operations: restricted to authenticated users
-    """
+     - Read operations: open to everyone
+     - Write operations: restricted to authenticated users
+     """
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [IsAuthenticatedOrReadOnly]

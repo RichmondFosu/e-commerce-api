@@ -22,5 +22,7 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),  # for browsable API login/logout
     path('api/', include('products.urls')),  # include product app URLs
     path('api/', include('categories.urls')),  # include category app URLs
+    path('api/accounts/', include('accounts.urls')),
 
 ]
+

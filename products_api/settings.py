@@ -37,11 +37,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework', # to build RESTful APIs (serializers, views, routers)
-# Registering apps so Django knows about them
+    'rest_framework',
     'products',
     'categories',
-    'django_filters',  # for filtering support
+    'django_filters',
+    'accounts',
+    'rest_framework.authtoken',
 ]
 
 
@@ -128,8 +129,7 @@ STATIC_URL = 'static/'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',  # built-in session auth
-        # 'rest_framework_simplejwt.authentication.JWTAuthentication', # optional later
+        'rest_framework.authentication.TokenAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',  # read-only for unauthenticated
@@ -149,3 +149,7 @@ REST_FRAMEWORK = {
 # media files config
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+LOGIN_REDIRECT_URL = '?next=/api/products'
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
