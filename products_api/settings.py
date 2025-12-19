@@ -41,7 +41,6 @@ INSTALLED_APPS = [
 # Registering apps so Django knows about them
     'products',
     'categories',
-
     'django_filters',  # for filtering support
 ]
 
