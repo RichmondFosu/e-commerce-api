@@ -1,128 +1,122 @@
+# Products App
 
+## **Overview**
 
-## 🔍 Search and Filtering System
+The **Products app** is part of an e-commerce API project. It manages all product-related operations, including creating, reading, updating, and deleting products.
 
-This API implements **search and filtering functionality** using **Django REST Framework (DRF) built-in filter backends** in combination with **django-filter**.
-This approach follows best practices for building scalable and maintainable RESTful APIs.
+Key features:
 
----
-
-### 📌 Technologies Used
-
-* **Django REST Framework (DRF)**
-* **django-filter**
-* **DRF SearchFilter**
-* **DRF DjangoFilterBackend**
-
-These tools allow flexible querying of product data using URL query parameters without writing custom query logic.
+* CRUD operations for products
+* Product categorization using the **Categories app**
+* Supports product images, including multiple extra images per product
+* Filtering, searching, and ordering of products
+* Pagination for API endpoints
+* Permissions: public read, write restricted to authenticated users, edits restricted to product owner
 
 ---
 
-## 🛠️ Configuration Overview
+## **How It Works**
 
-The API uses the following DRF filter backends:
+1. **Product Model**
 
-* `SearchFilter` → for partial text search
-* `DjangoFilterBackend` → for exact field-based filtering
+   * `product_name`, `slug`, `description`, `price`, `stock`, `is_available`
+   * Primary image stored in `images` field
+   * Optional extra images in `ProductImage` model
+   * Linked to a **Category** and tracks which user created it (`created_by`)
 
-They are enabled either globally in `settings.py` or locally at the view level.
+2. **Serializers**
+
+   * `ProductSerializer` handles both read and write operations
+
+     * Returns nested category data and extra images for read
+     * Accepts `category_id` for write
+   * `ProductImageSerializer` returns image URLs with absolute paths
+
+3. **Views / API**
+
+   * `ProductViewSet` provides all CRUD endpoints via DRF `ModelViewSet`
+   * Permissions:
+
+     * Public read access
+     * Authenticated users can create
+     * Only owners can update or delete their products
+   * Filtering, searching, and ordering supported:
+
+     * Filter by `category` slug, `in_stock`, `min_price`, `max_price`
+     * Search by `product_name` or `description`
+     * Ordering by `product_name`, `price`, `created_date`
+   * Pagination: configurable page size with maximum 100 items per page
+
+4. **Custom Permissions**
+
+   * `IsOwnerOrReadOnly` ensures only the product creator can modify or delete the product
 
 ---
 
-## 🔎 Search Functionality
+## **API Endpoints**
 
-### Searchable Fields
+Assuming your base URL is `/api/`:
 
-* **Product name**
+| Endpoint          | Method | Description                                   |
+| ----------------- | ------ | --------------------------------------------- |
+| `/products/`      | GET    | List all products (supports filtering/search) |
+| `/products/`      | POST   | Create a new product (auth required)          |
+| `/products/{id}/` | GET    | Retrieve a single product                     |
+| `/products/{id}/` | PUT    | Update a product (owner only)                 |
+| `/products/{id}/` | PATCH  | Partially update a product (owner only)       |
+| `/products/{id}/` | DELETE | Delete a product (owner only)                 |
 
-The search uses **partial matching** (case-insensitive), meaning it will return results that *contain* the search term.
+**Filtering Example:**
 
-### Example Usage
-
-```http
-GET /api/products/?search=laptop
+```
+GET /products/?min_price=10&max_price=100&in_stock=true&category=electronics
 ```
 
-This will return all products whose name includes:
+**Pagination Example:**
 
-* `Laptop`
-* `Gaming Laptop`
-* `Laptop Pro`
-
-No exact match is required.
-
----
-
-## 🏷️ Filtering Functionality
-
-### Filterable Fields
-
-* **Category**
-
-Filtering allows clients to retrieve products belonging to a specific category.
-
-### Example Usage
-
-```http
-GET /api/products/?category=electronics
+```
+GET /products/?page=2&page_size=10
 ```
 
-This returns all products with the category `electronics`.
-
-> If `category` is implemented as a ForeignKey, filtering is handled using related fields internally.
-
 ---
 
-## 🔄 Combined Queries (Search + Filter)
+## **How to Try**
 
-Search and filtering can be combined in a single request to create flexible queries.
+1. **Run Migrations**
 
-### Example
-
-```http
-GET /api/products/?search=phone&category=electronics
+```bash
+python manage.py makemigrations
+python manage.py migrate
 ```
 
-This returns:
+2. **Create a Superuser / Test Users**
 
-* Products whose name contains **“phone”**
-* AND belong to the **electronics** category
+```bash
+python manage.py createsuperuser
+```
 
----
+3. **Run Development Server**
 
-## 📋 Default Behavior
+```bash
+python manage.py runserver
+```
 
-* If **no query parameters** are provided, the API returns **all products**
-* If a query returns **no matches**, the API responds with:
+4. **Test API Endpoints**
 
-  * HTTP `200 OK`
-  * An empty list (`[]`)
-* Invalid filters do **not** crash the API
+   * Use Postman, cURL, or a browser (for GET endpoints)
+   * Include authentication token (if using DRF authtoken) for write operations
 
----
+5. **Upload Products**
 
-## ✅ Why This Approach Was Chosen
-
-Using DRF’s built-in filtering system provides:
-
-* Clean and readable code
-* Better performance and scalability
-* Industry-standard API behavior
-* Easy extension (ordering, pagination, advanced filters)
-
-This makes the API suitable for:
-
-* E-commerce platforms
-* Inventory management systems
-* Third-party API consumption
+   * Include `category_id` when creating a product
+   * Extra images can be uploaded via `multipart/form-data` under `extra_images`
 
 ---
 
-## 🚀 Extensibility
+## **Notes**
 
-The current search and filtering system can easily be extended to support:
+* Works best with the **Categories app** for proper product categorization.
+* Designed for an **API-first architecture**; template views are optional and not required.
+* Integrates with **Accounts app** for authentication and user management.
 
-* Ordering (`?ordering=price`)
-* Pagination
-* Advanced filters (price range, availability, date added)
-
+---

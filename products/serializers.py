@@ -1,93 +1,56 @@
+# products/serializers.py
 from rest_framework import serializers
-from .models import Product
-from categories.serializers import CategorySerializer  # for nested representation
+from .models import Product, ProductImage
 from categories.models import Category
-from .models import ProductImage
+from categories.serializers import CategorySerializer
 
+# Helper for DRY validation
+def validate_positive(value, field_name):
+    if value <= 0:
+        raise serializers.ValidationError(f"{field_name} must be greater than 0")
+    return value
 
 class ProductSerializer(serializers.ModelSerializer):
-    # Read: nested category object
+    # Nested category object for read
     category = CategorySerializer(read_only=True)
-    # Include extra images (many) in read responses
-    extra_images = serializers.SerializerMethodField()
-
-    # Write: accept category by its ID under `category_id`
+    # Accept category by ID for write
     category_id = serializers.PrimaryKeyRelatedField(
         queryset=Category.objects.all(), source='category', write_only=True, required=True
     )
+    # Extra images included in read responses
+    extra_images = serializers.SerializerMethodField()
+    # Include creator username
+    created_by = serializers.CharField(source='created_by.username', read_only=True)
 
     class Meta:
         model = Product
         fields = [
             'id', 'product_name', 'slug', 'description', 'price',
-            'images', 'stock', 'is_available', 'category', 'category_id', 'extra_images',
-            'created_date', 'updated_date'
+            'images', 'stock', 'is_available', 'category', 'category_id',
+            'extra_images', 'created_date', 'updated_date', 'created_by'
         ]
-        read_only_fields = ['id', 'created_date', 'updated_date']
+        read_only_fields = ['id', 'created_date', 'updated_date', 'created_by']
 
+    # Validations
     def validate_price(self, value):
-        if value <= 0:
-            raise serializers.ValidationError("Price must be greater than 0")
-        return value
+        return validate_positive(value, 'Price')
 
     def validate_stock(self, value):
         if value < 0:
             raise serializers.ValidationError("Stock cannot be negative")
         return value
 
-    def to_representation(self, instance):
-        """Return product representation with absolute image URLs when request present."""
-        data = super().to_representation(instance)
-        request = self.context.get('request') if hasattr(self, 'context') else None
-        # main image
-        img = data.get('images')
-        if img and request:
-            try:
-                data['images'] = request.build_absolute_uri(instance.images.url) if instance.images else None
-            except Exception:
-                data['images'] = img
-
-        # extra images are already provided as dicts; ensure absolute URLs
-        extras = data.get('extra_images')
-        if extras and request:
-            for e, obj in zip(extras, instance.extra_images.all()):
-                if obj.image:
-                    e['image'] = request.build_absolute_uri(obj.image.url)
-
-        return data
-
+    # Extra images representation
     def get_extra_images(self, obj):
-        imgs = obj.extra_images.all()
+        request = self.context.get('request')
         return [
-            {'id': i.id, 'image': i.image.url if i.image else None, 'created_date': i.created_date}
-            for i in imgs
+            {
+                'id': img.id,
+                'image': request.build_absolute_uri(img.image.url) if img.image and request else img.image.url if img.image else None,
+                'created_date': img.created_date
+            }
+            for img in obj.extra_images.all()
         ]
-
-
-class ProductCreateSerializer(serializers.ModelSerializer):
-    # Accept category as PK on write
-    category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
-    images = serializers.ImageField(required=False, allow_null=True)
-
-    class Meta:
-        model = Product
-        fields = [
-            'id', 'product_name', 'slug', 'description', 'price',
-            'images', 'stock', 'is_available', 'category',
-            'created_date', 'updated_date'
-        ]
-        read_only_fields = ['id', 'created_date', 'updated_date']
-
-    def validate_price(self, value):
-        if value <= 0:
-            raise serializers.ValidationError("Price must be greater than 0")
-        return value
-
-    def validate_stock(self, value):
-        if value < 0:
-            raise serializers.ValidationError("Stock cannot be negative")
-        return value
-
 
 class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -95,14 +58,12 @@ class ProductImageSerializer(serializers.ModelSerializer):
         fields = ['id', 'image', 'created_date']
 
     def to_representation(self, instance):
-        request = self.context.get('request') if hasattr(self, 'context') else None
+        request = self.context.get('request')
         image_url = instance.image.url if instance.image else None
         if image_url and request:
             image_url = request.build_absolute_uri(image_url)
         return {
             'id': instance.id,
             'image': image_url,
-            'created_date': instance.created_date,
+            'created_date': instance.created_date
         }
-
-# (helper was moved into ProductSerializer)
