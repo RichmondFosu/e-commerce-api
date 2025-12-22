@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Demo{% endblock %}</title>
+    <!-- Bootstrap CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: white;
+            color: black;
+        }
+        .navbar {
+            background-color: #0d1b2a; /* blue-black */
+        }
+        .navbar a {
+            color: white !important;
+        }
+        .btn-primary {
+            background-color: #1b263b; /* blue */
+            border-color: #1b263b;
+        }
+        .badge-highlight {
+            background-color: #f0c419; /* yellow */
+            color: black;
+        }
+        .text-error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg p-3">
+    <a class="navbar-brand" href="{% url 'demo:product_list' %}">Demo</a>
+    <div class="collapse navbar-collapse">
+        <ul class="navbar-nav ms-auto">
+            {% if request.session.token %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'demo:logout' %}">Logout</a>
+            </li>
+            {% else %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'demo:login' %}">Login</a>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% block content %}{% endblock %}
+</div>
+
+</body>
+</html>

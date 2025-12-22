@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django_filters',
     'accounts',
     'rest_framework.authtoken',
+    'demo',
 ]
 
 
@@ -153,3 +154,4 @@ MEDIA_ROOT = BASE_DIR / 'media'
 LOGIN_REDIRECT_URL = '?next=/api/products'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+

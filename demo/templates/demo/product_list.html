@@ -1,0 +1,77 @@
+{% extends 'demo/base.html' %}
+
+{% block title %}Products{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Products</h2>
+
+{% if request.session.token %}
+<div class="mb-3">
+    <a href="{% url 'demo:product_add' %}" class="btn btn-success">Add Product</a>
+</div>
+{% endif %}
+
+
+<!-- Search and Filter -->
+<form method="GET" class="row g-3 mb-4">
+    <div class="col-md-4">
+        <input type="text" name="search" placeholder="Search by name..." class="form-control" value="{{ request.GET.search }}">
+    </div>
+    <div class="col-md-3">
+        <select name="category" class="form-select">
+            <option value="">All Categories</option>
+            {% for cat in data.categories %}
+                <option value="{{ cat.id }}" {% if request.GET.category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary">Filter</button>
+    </div>
+</form>
+
+<!-- Product Grid -->
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for product in products %}
+    <div class="col">
+        <div class="card h-100">
+            {% if product.images %}
+            <img src="{{ product.images }}" class="card-img-top" alt="{{ product.product_name }}">
+            {% else %}
+            <div class="card-img-top bg-secondary text-white p-5 text-center">No Image</div>
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ product.product_name }}</h5>
+                <p class="card-text">{{ product.description|truncatewords:15 }}</p>
+                <p><span class="badge badge-highlight">${{ product.price }}</span></p>
+                <p>Stock: {% if product.stock > 0 %}{{ product.stock }}{% else %}<span class="text-error">Out of stock</span>{% endif %}</p>
+                <a href="#" class="btn btn-primary btn-sm">View</a>
+                {% if request.session.token %}
+                    <a href="#" class="btn btn-warning btn-sm">Edit</a>
+                    <a href="#" class="btn btn-danger btn-sm">Delete</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if data.previous or data.next %}
+<nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if data.previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ data.previous|cut:'?page=' }}" aria-label="Previous">&laquo;</a>
+        </li>
+        {% endif %}
+        {% if data.next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ data.next|cut:'?page=' }}" aria-label="Next">&raquo;</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+{% endblock %}

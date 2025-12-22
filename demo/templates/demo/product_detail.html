@@ -1,0 +1,46 @@
+{% extends 'demo/base.html' %}
+
+{% block title %}{{ product.product_name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <!-- Main Product Image -->
+        {% if product.images %}
+        <img src="{{ product.images }}" class="img-fluid mb-3" alt="{{ product.product_name }}">
+        {% else %}
+        <div class="bg-secondary text-white p-5 text-center mb-3">No Image</div>
+        {% endif %}
+
+        <!-- Extra Images -->
+        {% if product.extra_images %}
+        <div class="row g-2">
+            {% for img in product.extra_images %}
+            <div class="col-4">
+                <img src="{{ img.image }}" class="img-fluid border" alt="Extra image {{ forloop.counter }}">
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-6">
+        <h2>{{ product.product_name }}</h2>
+        <p>{{ product.description }}</p>
+        <p>
+            <span class="badge badge-highlight">${{ product.price }}</span>
+        </p>
+        <p>Category: <strong>{{ product.category.name }}</strong></p>
+        <p>Stock: {% if product.stock > 0 %}{{ product.stock }}{% else %}<span class="text-error">Out of stock</span>{% endif %}</p>
+        <p>Created: {{ product.created_date|date:"M d, Y H:i" }}</p>
+
+        <!-- Authenticated User Controls -->
+        {% if request.session.token %}
+        <a href="#" class="btn btn-warning">Edit</a>
+        <a href="#" class="btn btn-danger">Delete</a>
+        {% endif %}
+
+        <a href="{% url 'demo:product_list' %}" class="btn btn-primary mt-3">Back to Products</a>
+    </div>
+</div>
+{% endblock %}
