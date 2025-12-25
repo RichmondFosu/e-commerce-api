@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [
@@ -25,7 +27,7 @@ urlpatterns = [
     path('api/', include('categories.urls')),  # include category app URLs
     path('api-auth/token/', obtain_auth_token, name='api_toekn_auth'),
     path('api/accounts/', include('accounts.urls')),
-    path('demo/', include('demo.urls'))
+    path('', include('demo.urls'))
 
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

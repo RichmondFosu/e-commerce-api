@@ -2,7 +2,7 @@ from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 class IsOwnerOrReadOnly(BasePermission):
     """
-    Allows only the owner of a product to edit or delete it.
+    Allows anyone to edit or delete products (for demo purposes).
     """
 
     def has_object_permission(self, request, view, obj):
@@ -10,5 +10,5 @@ class IsOwnerOrReadOnly(BasePermission):
         if request.method in SAFE_METHODS:
             return True
 
-        # Write permissions only for the owner
-        return obj.created_by == request.user
+        # Write permissions for anyone (demo)
+        return True

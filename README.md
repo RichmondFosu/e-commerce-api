@@ -1,11 +1,19 @@
-## 🌟 Repo Review (Attractive Version)
+# E-commerce API
 
-**E-commerce Product API** built with **Django & DRF** — a fully functional backend for managing products and categories.
+A Django REST API for managing products and categories.
 
-* ✅ Secure: Only authenticated users can create or modify products, with ownership-based permissions.
-* ✅ RESTful & scalable: CRUD operations, clean endpoints, and ready for search, filtering, and pagination.
-* ✅ Real-world design: Follows best practices with layered security, modular apps, and admin management.
+## Features
+- User authentication
+- Product and category CRUD
+- Filtering, search, pagination
+- Owner-based permissions
 
-This project is perfect for learning **professional backend development**, or as a strong foundation for a full e-commerce platform.
+## Quick Start
+1. Install dependencies: `pip install -r requirements.txt`
+2. Run migrations: `python manage.py migrate`
+3. Start server: `python manage.py runserver`
+
+## API Documentation
+See [API.md](API.md) for detailed endpoints and usage.
 
 

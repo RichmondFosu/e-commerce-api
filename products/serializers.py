@@ -19,6 +19,8 @@ class ProductSerializer(serializers.ModelSerializer):
     )
     # Extra images included in read responses
     extra_images = serializers.SerializerMethodField()
+    # Images field as SerializerMethodField to build absolute URLs
+    images = serializers.SerializerMethodField()
     # Include creator username
     created_by = serializers.CharField(source='created_by.username', read_only=True)
 
@@ -29,7 +31,7 @@ class ProductSerializer(serializers.ModelSerializer):
             'images', 'stock', 'is_available', 'category', 'category_id',
             'extra_images', 'created_date', 'updated_date', 'created_by'
         ]
-        read_only_fields = ['id', 'created_date', 'updated_date', 'created_by']
+        read_only_fields = ['id', 'slug', 'created_date', 'updated_date', 'created_by']
 
     # Validations
     def validate_price(self, value):
@@ -51,6 +53,13 @@ class ProductSerializer(serializers.ModelSerializer):
             }
             for img in obj.extra_images.all()
         ]
+
+    # Ensure images field returns full URL
+    def get_images(self, obj):
+        request = self.context.get('request')
+        if obj.images and request:
+            return request.build_absolute_uri(obj.images.url)
+        return obj.images.url if obj.images else None
 
 class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:
