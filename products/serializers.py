@@ -19,8 +19,7 @@ class ProductSerializer(serializers.ModelSerializer):
     )
     # Extra images included in read responses
     extra_images = serializers.SerializerMethodField()
-    # Images field as SerializerMethodField to build absolute URLs
-    images = serializers.SerializerMethodField()
+    # Images field handled in to_representation for absolute URLs
     # Include creator username
     created_by = serializers.CharField(source='created_by.username', read_only=True)
 
@@ -54,12 +53,9 @@ class ProductSerializer(serializers.ModelSerializer):
             for img in obj.extra_images.all()
         ]
 
-    # Ensure images field returns full URL
-    def get_images(self, obj):
-        request = self.context.get('request')
-        if obj.images and request:
-            return request.build_absolute_uri(obj.images.url)
-        return obj.images.url if obj.images else None
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        return data
 
 class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:

@@ -1,27 +1,17 @@
 {% extends 'demo/base.html' %}
 
-{% block title %}Products{% endblock %}
+{% block title %}Welcome to E-commerce API Demo{% endblock %}
 
 {% block content %}
-<h2 class="mb-4">Products</h2>
+<div class="jumbotron bg-primary text-white rounded p-5 mb-4">
+    <h1 class="display-4">Welcome to Our E-commerce Platform</h1>
+    <p class="lead">Discover amazing products across various categories. Browse, search, and manage your favorite items with ease.</p>
+    <hr class="my-4">
+    <p>Explore our extensive collection of products, from electronics to accessories.</p>
+    <!-- <a class="btn btn-light btn-lg" href="{% url 'demo:login' %}" role="button">Login to Browse</a> -->
+</div>
 
-<!-- Search and Filter -->
-<form method="GET" class="row g-3 mb-4">
-    <div class="col-md-4">
-        <input type="text" name="search" placeholder="Search by name..." class="form-control" value="{{ request.GET.search }}">
-    </div>
-    <div class="col-md-3">
-        <select name="category" class="form-select">
-            <option value="">All Categories</option>
-            {% for cat in data.categories %}
-                <option value="{{ cat.id }}" {% if request.GET.category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
-            {% endfor %}
-        </select>
-    </div>
-    <div class="col-md-2">
-        <button type="submit" class="btn btn-primary">Filter</button>
-    </div>
-</form>
+<h2 class="mb-4" id="products">Products</h2>
 
 <!-- Product Grid -->
 <div class="row row-cols-1 row-cols-md-3 g-4">
@@ -38,7 +28,11 @@
                 <p class="card-text">{{ product.description|truncatewords:15 }}</p>
                 <p><span class="badge badge-highlight">${{ product.price }}</span></p>
                 <p>Stock: {% if product.stock > 0 %}{{ product.stock }}{% else %}<span class="text-error">Out of stock</span>{% endif %}</p>
-                <a href="{% url 'demo:product_detail' product.id %}" class="stretched-link" title="{{ product.description }}"></a>
+                {% if request.session.token %}
+                    <a href="{% url 'demo:product_detail' product.id %}" class="stretched-link" title="{{ product.description }}"></a>
+                {% else %}
+                    <a href="{% url 'demo:login' %}" class="stretched-link" title="{{ product.description }}"></a>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -49,14 +43,14 @@
 {% if data.previous or data.next %}
 <nav aria-label="Page navigation" class="mt-4">
     <ul class="pagination justify-content-center">
-        {% if data.previous %}
+        {% if data.previous_page %}
         <li class="page-item">
-            <a class="page-link" href="?page={{ data.previous|cut:'?page=' }}" aria-label="Previous">&laquo;</a>
+            <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ data.previous_page }}" aria-label="Previous">&laquo;</a>
         </li>
         {% endif %}
-        {% if data.next %}
+        {% if data.next_page %}
         <li class="page-item">
-            <a class="page-link" href="?page={{ data.next|cut:'?page=' }}" aria-label="Next">&raquo;</a>
+            <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ data.next_page }}" aria-label="Next">&raquo;</a>
         </li>
         {% endif %}
     </ul>

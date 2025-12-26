@@ -1,9 +1,10 @@
 # demo/views.py
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.urls import reverse
 import requests
 
-API_TOKEN_URL = 'http://127.0.0.1:8000/api-auth/token/'
+API_TOKEN_URL = 'http://127.0.0.1:8000/api/accounts/login/'
 API_BASE_URL = 'http://127.0.0.1:8000/api/'
 
 def landing_view(request):
@@ -11,6 +12,9 @@ def landing_view(request):
     params = {
         'search': request.GET.get('search', ''),
         'category': request.GET.get('category', ''),
+        'min_price': request.GET.get('min_price', ''),
+        'max_price': request.GET.get('max_price', ''),
+        'in_stock': request.GET.get('in_stock', ''),
         'page': request.GET.get('page', 1),
     }
 
@@ -29,6 +33,18 @@ def landing_view(request):
         data = response.json()
         products = data.get('results', data)
 
+        # Extract page numbers from pagination URLs
+        if data.get('next'):
+            from urllib.parse import urlparse, parse_qs
+            parsed = urlparse(data['next'])
+            params = parse_qs(parsed.query)
+            data['next_page'] = params.get('page', [None])[0]
+        if data.get('previous'):
+            from urllib.parse import urlparse, parse_qs
+            parsed = urlparse(data['previous'])
+            params = parse_qs(parsed.query)
+            data['previous_page'] = params.get('page', [None])[0]
+
     # Fetch categories for the dropdown
     categories = []
     if categories_resp.status_code == 200:
@@ -42,6 +58,7 @@ def landing_view(request):
     return render(request, 'demo/landing.html', {
         'products': products,
         'data': data,
+        'categories': categories,
     })
 
 def login_view(request):
@@ -52,8 +69,7 @@ def login_view(request):
         try:
             response = requests.post(
                 API_TOKEN_URL,
-                json={'username': username, 'password': password},
-                headers={'Content-Type': 'application/json'}
+                data={'username': username, 'password': password}
             )
         except requests.exceptions.ConnectionError:
             messages.error(request, "Cannot connect to API. Make sure server is running.")
@@ -83,6 +99,9 @@ def product_list_view(request):
     params = {
         'search': request.GET.get('search', ''),
         'category': request.GET.get('category', ''),
+        'min_price': request.GET.get('min_price', ''),
+        'max_price': request.GET.get('max_price', ''),
+        'in_stock': request.GET.get('in_stock', ''),
         'page': request.GET.get('page', 1),
     }
 
@@ -101,6 +120,18 @@ def product_list_view(request):
         data = response.json()
         products = data.get('results', data)
 
+        # Extract page numbers from pagination URLs
+        if data.get('next'):
+            from urllib.parse import urlparse, parse_qs
+            parsed = urlparse(data['next'])
+            params = parse_qs(parsed.query)
+            data['next_page'] = params.get('page', [None])[0]
+        if data.get('previous'):
+            from urllib.parse import urlparse, parse_qs
+            parsed = urlparse(data['previous'])
+            params = parse_qs(parsed.query)
+            data['previous_page'] = params.get('page', [None])[0]
+
     # Fetch categories for the dropdown
     categories = []
     if categories_resp.status_code == 200:
@@ -114,6 +145,7 @@ def product_list_view(request):
     return render(request, 'demo/product_list.html', {
         'products': products,
         'data': data,
+        'categories': categories,
     })
 
 
@@ -123,6 +155,10 @@ CATEGORIES_API_URL = f"{API_BASE_URL}categories/"
 
 def product_detail_view(request, product_id):
     token = request.session.get('token')
+    if not token:
+        messages.error(request, "You must be logged in to view product details.")
+        return redirect('demo:login')
+
     headers = {}
     if token:
         headers['Authorization'] = f'Token {token}'
@@ -280,3 +316,40 @@ def product_add_view(request):
             print(response.text)  # Debug API response
 
     return render(request, 'demo/product_add.html', {'categories': categories})
+
+def advanced_filter_view(request):
+    # Fetch categories for the dropdown
+    try:
+        categories_resp = requests.get(f"{API_BASE_URL}categories/")
+    except requests.exceptions.ConnectionError:
+        messages.error(request, "Cannot connect to API. Make sure server is running.")
+        return render(request, 'demo/advanced_filter.html', {'categories': []})
+
+    categories = []
+    if categories_resp.status_code == 200:
+        categories = categories_resp.json()
+    else:
+        messages.warning(request, "Failed to load categories.")
+
+    if request.method == 'POST':
+        # Build query parameters from form
+        params = {
+            'search': request.POST.get('search', ''),
+            'category': request.POST.get('category', ''),
+            'min_price': request.POST.get('min_price', ''),
+            'max_price': request.POST.get('max_price', ''),
+            'in_stock': request.POST.get('in_stock', ''),
+        }
+        # Remove empty parameters
+        params = {k: v for k, v in params.items() if v}
+
+        # Redirect to product list with filters
+        from urllib.parse import urlencode
+        query_string = urlencode(params)
+        return redirect(f"{reverse('demo:product_list')}?{query_string}")
+
+    return render(request, 'demo/advanced_filter.html', {'categories': categories})
+
+def presentation_view(request):
+    """View for the API operations presentation page."""
+    return render(request, 'demo/presentation.html')

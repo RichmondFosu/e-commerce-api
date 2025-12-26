@@ -11,7 +11,6 @@ from .serializers import ProductSerializer
 from .permissions import IsOwnerOrReadOnly
 from .filters import ProductFilter
 
-@method_decorator(cache_page(60 * 5), name='list')  # cache list view for 5 minutes
 class ProductViewSet(ModelViewSet):
     """
     Handles all CRUD operations for products.

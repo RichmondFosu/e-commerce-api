@@ -1,0 +1,46 @@
+{% extends 'demo/base.html' %}
+
+{% block title %}Advanced Filters{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Advanced Filters</h2>
+
+    <form method="POST" class="row g-3">
+        {% csrf_token %}
+        <div class="col-md-6">
+            <label for="search" class="form-label">Search by Name</label>
+            <input type="text" name="search" id="search" class="form-control" placeholder="Enter product name..." value="{{ request.POST.search }}">
+        </div>
+        <div class="col-md-6">
+            <label for="category" class="form-label">Category</label>
+            <select name="category" id="category" class="form-select">
+                <option value="">All Categories</option>
+                {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if request.POST.category == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-6">
+            <label for="min_price" class="form-label">Minimum Price</label>
+            <input type="number" name="min_price" id="min_price" class="form-control" placeholder="0.00" step="0.01" value="{{ request.POST.min_price }}">
+        </div>
+        <div class="col-md-6">
+            <label for="max_price" class="form-label">Maximum Price</label>
+            <input type="number" name="max_price" id="max_price" class="form-control" placeholder="0.00" step="0.01" value="{{ request.POST.max_price }}">
+        </div>
+        <div class="col-md-6">
+            <label for="in_stock" class="form-label">Stock Status</label>
+            <select name="in_stock" id="in_stock" class="form-select">
+                <option value="">All Products</option>
+                <option value="true" {% if request.POST.in_stock == 'true' %}selected{% endif %}>In Stock</option>
+                <option value="false" {% if request.POST.in_stock == 'false' %}selected{% endif %}>Out of Stock</option>
+            </select>
+        </div>
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary">Apply Filters</button>
+            <a href="{% url 'demo:product_list' %}" class="btn btn-secondary ms-2">Clear Filters</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

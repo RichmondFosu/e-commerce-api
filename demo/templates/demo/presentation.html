@@ -1,0 +1,292 @@
+{% extends 'demo/base.html' %}
+
+{% block title %}API Operations Presentation{% endblock %}
+
+{% block content %}
+<div class="jumbotron bg-primary text-white rounded p-5 mb-4">
+    <h1 class="display-4">E-commerce API Operations</h1>
+    <p class="lead">Interactive demonstration of all API endpoints and features</p>
+    <hr class="my-4">
+    <p>Explore the full functionality of our RESTful API through this comprehensive presentation.</p>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <h2 class="mb-4">Authentication Operations</h2>
+
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">User Registration</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Endpoint:</strong> <code>POST /api/accounts/register/</code></p>
+                <p><strong>Description:</strong> Register a new user account</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Request Example:</h6>
+                        <pre class="bg-light p-3 rounded"><code>curl -X POST http://localhost:8000/api/accounts/register/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "demo_user",
+    "email": "demo@example.com",
+    "password": "securepass123"
+  }'</code></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Response Example:</h6>
+                        <pre class="bg-light p-3 rounded"><code>{
+  "username": "demo_user",
+  "email": "demo@example.com"
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">User Login</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Endpoint:</strong> <code>POST /api/accounts/login/</code></p>
+                <p><strong>Description:</strong> Authenticate user and receive token</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Request Example:</h6>
+                        <pre class="bg-light p-3 rounded"><code>curl -X POST http://localhost:8000/api/accounts/login/ \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "demo_user",
+    "password": "securepass123"
+  }'</code></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Response Example:</h6>
+                        <pre class="bg-light p-3 rounded"><code>{
+  "token": "abc123def456..."
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <h2 class="mb-4">Product Operations</h2>
+
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">List Products</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Endpoint:</strong> <code>GET /api/products/</code></p>
+                <p><strong>Description:</strong> Retrieve paginated list of products with optional filtering</p>
+                <p><strong>Query Parameters:</strong> search, category, min_price, max_price, in_stock, ordering, page, page_size</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Example Request:</h6>
+                        <pre class="bg-light p-3 rounded"><code>curl "http://localhost:8000/api/products/?category=electronics&min_price=50&max_price=200&in_stock=true"</code></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Response Structure:</h6>
+                        <pre class="bg-light p-3 rounded"><code>{
+  "count": 25,
+  "next": "http://localhost:8000/api/products/?page=2",
+  "previous": null,
+  "results": [
+    {
+      "id": 1,
+      "product_name": "Wireless Headphones",
+      "price": 99.99,
+      "stock": 50,
+      "category": {"id": 1, "name": "Electronics"},
+      "images": [{"image": "/media/photos/products/headphones.jpg"}],
+      "created_by": "demo_user"
+    }
+  ]
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Create Product</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Endpoint:</strong> <code>POST /api/products/</code></p>
+                <p><strong>Description:</strong> Create a new product (authenticated users only)</p>
+                <p><strong>Authentication:</strong> Required (Token in Authorization header)</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Request Example:</h6>
+                        <pre class="bg-light p-3 rounded"><code>curl -X POST http://localhost:8000/api/products/ \
+  -H "Authorization: Token abc123def456..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "product_name": "New Laptop",
+    "description": "High-performance laptop",
+    "price": 1299.99,
+    "stock": 10,
+    "category_id": 1
+  }'</code></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Response Example:</h6>
+                        <pre class="bg-light p-3 rounded"><code>{
+  "id": 26,
+  "product_name": "New Laptop",
+  "description": "High-performance laptop",
+  "price": 1299.99,
+  "stock": 10,
+  "category": {"id": 1, "name": "Electronics"},
+  "images": [],
+  "created_by": "demo_user"
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Update Product</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Endpoint:</strong> <code>PUT /api/products/{id}/</code></p>
+                <p><strong>Description:</strong> Update an existing product (owner only)</p>
+                <p><strong>Authentication:</strong> Required (Token in Authorization header)</p>
+                <p><strong>Authorization:</strong> Only the product creator can update</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Request Example:</h6>
+                        <pre class="bg-light p-3 rounded"><code>curl -X PUT http://localhost:8000/api/products/26/ \
+  -H "Authorization: Token abc123def456..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "product_name": "Updated Laptop",
+    "description": "High-performance laptop with updates",
+    "price": 1399.99,
+    "stock": 8,
+    "category_id": 1
+  }'</code></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Response Example:</h6>
+                        <pre class="bg-light p-3 rounded"><code>{
+  "id": 26,
+  "product_name": "Updated Laptop",
+  "description": "High-performance laptop with updates",
+  "price": 1399.99,
+  "stock": 8,
+  "category": {"id": 1, "name": "Electronics"},
+  "images": [],
+  "created_by": "demo_user"
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Delete Product</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Endpoint:</strong> <code>DELETE /api/products/{id}/</code></p>
+                <p><strong>Description:</strong> Delete a product (owner only)</p>
+                <p><strong>Authentication:</strong> Required (Token in Authorization header)</p>
+                <p><strong>Authorization:</strong> Only the product creator can delete</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Request Example:</h6>
+                        <pre class="bg-light p-3 rounded"><code>curl -X DELETE http://localhost:8000/api/products/26/ \
+  -H "Authorization: Token abc123def456..."</code></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Response:</h6>
+                        <pre class="bg-light p-3 rounded"><code>HTTP 204 No Content</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <h2 class="mb-4">Category Operations</h2>
+
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">List Categories</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Endpoint:</strong> <code>GET /api/categories/</code></p>
+                <p><strong>Description:</strong> Retrieve all categories (public access)</p>
+                <p><strong>Query Parameters:</strong> search, name, slug, created_at, ordering</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Example Request:</h6>
+                        <pre class="bg-light p-3 rounded"><code>curl "http://localhost:8000/api/categories/?search=electronics"</code></pre>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Response Example:</h6>
+                        <pre class="bg-light p-3 rounded"><code>[
+  {
+    "id": 1,
+    "name": "Electronics",
+    "slug": "electronics",
+    "description": "Electronic devices and accessories"
+  },
+  {
+    "id": 2,
+    "name": "Books",
+    "slug": "books",
+    "description": "Books and publications"
+  }
+]</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <h2 class="mb-4">Security Features</h2>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5>Owner-Based Permissions</h5>
+                <p>Products can only be edited and deleted by their creator:</p>
+                <ul>
+                    <li><strong>Read Operations:</strong> Public access to all users</li>
+                    <li><strong>Write Operations:</strong> Require authentication</li>
+                    <li><strong>Update/Delete:</strong> Restricted to product owner only</li>
+                </ul>
+                <p class="text-muted">This ensures data integrity and prevents unauthorized modifications.</p>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5>Advanced Filtering & Search</h5>
+                <p>The API supports comprehensive filtering and search capabilities:</p>
+                <ul>
+                    <li><strong>Text Search:</strong> Search across product names and descriptions</li>
+                    <li><strong>Category Filtering:</strong> Filter by specific categories</li>
+                    <li><strong>Price Range:</strong> Filter by minimum and maximum prices</li>
+                    <li><strong>Stock Status:</strong> Filter by availability</li>
+                    <li><strong>Pagination:</strong> Efficient handling of large result sets</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
